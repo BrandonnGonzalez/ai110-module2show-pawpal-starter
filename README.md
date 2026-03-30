@@ -22,6 +22,22 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+
+### Testing PawPal+
+- Baseline (2 tests)
+Basic Tasks behavior — mark_complete() flips the completed flag, and appending a task increments a pet's task list.
+
+book_slot — conflict detection (4 tests)
+Verifies that every booking always succeeds (task lands in schedule.tasks and schedule.slots) regardless of conflicts, and that the return value is None for a clean slot, a non-empty warning string for a same-pet collision, and a different warning string for a cross-pet collision.
+
+complete_task — recurrence logic (7 tests)
+Confirms daily recurrence advances exactly 1 day, weekly advances exactly 7 days, the new task has completed=False and the same frequency, and its id is max + 1. Also guards the failure paths: frequency=None, unknown frequency ("monthly"), missing task_id, and timeslot=None all return None without raising.
+
+filter_tasks — sorting and filtering (8 tests)
+Covers every filter in isolation (completed=False, completed=True, pet_name) and all three combined. Edge cases include a pet with no tasks returning [], a timeslot=None task sorting last via the datetime.max sentinel, and passing pet_name without an owner silently skipping the filter (a subtle no-op in the implementation).
+
+Confidence Level: 5 Stars ☆
+
 ## Getting started
 
 ### Setup
