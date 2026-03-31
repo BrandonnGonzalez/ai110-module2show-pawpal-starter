@@ -47,12 +47,16 @@ This is a reasonable tradeoff for the current scope of the app for a few reasons
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+- I used AI tools for all sort of ideas and tasks throughout the project. I had it not only help me with brainstorming and designing the mermaid diagram, but also advancing into the app with uni tests and more.
 - What kinds of prompts or questions were most helpful?
+- Definitely using the "ask before edits mode" and the planning mode to brainstorm and give it as much context as possible before building so that it would make less mistakes and go in the right direction a lot easier.
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
+- One moment when i was creating the unit tests, they were just way too complicated and not as straight forward as it shouldve been. I rewinded the code and forked the previous chat and fed it more context and strict rules in plan mode until it gave me a solid walkthrough, then allowed it to code with my approved changes.
 - How did you evaluate or verify what the AI suggested?
+- I made sure to test things manually and read through every code change it wanted to make, while also having it explain itself. I also follow a rule to where if I cannot explain what the AI is wanting to do or change, then that means I should not approve the change.
 
 ---
 
@@ -61,13 +65,16 @@ This is a reasonable tradeoff for the current scope of the app for a few reasons
 **a. What you tested**
 
 - What behaviors did you test?
+- I tested almost every behavior possible; sorting, filtering, etc.
 - Why were these tests important?
+- These tests were extremely important because it would be able to block out conflicts from happening within the app. For example, within the scheduling aspect of the app, an owner should not be able to have two timeslots book for two different pets or tasks. For one timeslot, there should only be one task and pet per owner. If not, it would cause a lot of issues and warnings to come up.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+- Very confident especially after manually testing it.
 - What edge cases would you test next if you had more time?
-
+- I would cover edge cases like if there were to be multiple pets with the same name, mulitple tasks per different owner at the same time and day, etc.
 ---
 
 ## 5. Reflection
@@ -75,11 +82,14 @@ This is a reasonable tradeoff for the current scope of the app for a few reasons
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+- Utilizing AI to brainstorm and build, getting a deeper grasp with how it works, and really learning how to leverage and take control of it.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+- I would improve on the backend logic.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+- One important thing I learned about designing systems is that you always need to make sure that the firsthand logic is solid enough to handle the classes and basic tests. If you develop tests for that logic and it fails instantly, it is extremely important to go and redefine it before moving on to where it will continue breaking.
