@@ -1,5 +1,9 @@
 # PawPal+ (Module 2 Project)
 
+#Demo
+<img width="1463" height="754" alt="Screenshot 2026-03-30 at 9 19 57 PM" src="https://github.com/user-attachments/assets/5afb1b5f-9ead-431a-9d01-9adbd3f19782" />
+
+
 You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
 
 ## Scenario
