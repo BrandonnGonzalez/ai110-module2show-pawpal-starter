@@ -104,32 +104,94 @@ else:
 
 st.divider()
 
+# --- Mark Task Complete ---
+st.subheader("Mark Task Complete")
+
+pending = [t for t in schedule.tasks if not t.completed]
+if not pending:
+    st.info("No pending tasks to complete.")
+else:
+    pet_name_map = {p.id: p.pet_name for p in owner.pets}
+
+    def task_label(t):
+        pet = pet_name_map.get(t.pet_id, f"Pet #{t.pet_id}")
+        time_str = t.timeslot.strftime("%b %d %H:%M") if t.timeslot else "no time"
+        task_str = ", ".join(t.tasks)
+        freq = f" [{t.frequency}]" if t.frequency else ""
+        return f"[{t.id}] {pet} — {task_str} @ {time_str}{freq}"
+
+    task_options = {task_label(t): t for t in pending}
+    selected_label = st.selectbox("Select a task to complete", list(task_options.keys()))
+    selected_task = task_options[selected_label]
+
+    if st.button("Mark Complete"):
+        next_task = schedule.complete_task(selected_task.id)
+        st.success(f"Task '{', '.join(selected_task.tasks)}' marked as complete!")
+        if next_task:
+            next_time = next_task.timeslot.strftime("%b %d %H:%M") if next_task.timeslot else "unknown"
+            st.info(f"Recurring task auto-scheduled: next occurrence at {next_time}.")
+
+st.divider()
+
 # --- View Schedule ---
 st.subheader("Current Schedule")
 
+# Filter controls
+col_f1, col_f2 = st.columns(2)
+with col_f1:
+    pet_filter_options = ["All pets"] + [p.pet_name for p in owner.pets]
+    filter_pet = st.selectbox("Filter by pet", pet_filter_options, key="filter_pet")
+with col_f2:
+    filter_status = st.radio(
+        "Show tasks",
+        ["All", "Pending only", "Completed only"],
+        horizontal=True,
+        key="filter_status",
+    )
+
+pet_name_arg = None if filter_pet == "All pets" else filter_pet
+completed_arg = None
+if filter_status == "Pending only":
+    completed_arg = False
+elif filter_status == "Completed only":
+    completed_arg = True
+
 if st.button("Generate Schedule"):
-    if not schedule.tasks:
-        st.info("No tasks scheduled yet.")
+    filtered = schedule.filter_tasks(
+        pet_name=pet_name_arg,
+        completed=completed_arg,
+        owner=owner,
+    )
+
+    if not filtered:
+        st.info("No tasks match the selected filters.")
     else:
-        # Sort chronologically, then group by date
-        sorted_tasks = sorted(
-            schedule.tasks,
-            key=lambda t: t.timeslot if t.timeslot else datetime.max,
-        )
+        pet_name_map = {p.id: p.pet_name for p in owner.pets}
+
+        # Group by date (filter_tasks already returns them sorted)
         by_date: dict = defaultdict(list)
-        for t in sorted_tasks:
+        for t in filtered:
             key = t.timeslot.date() if t.timeslot else "No date"
             by_date[key].append(t)
 
+        total = len(filtered)
+        done = sum(1 for t in filtered if t.completed)
+        st.success(f"Showing {total} task(s) — {done} completed, {total - done} pending.")
+
         for date, tasks in by_date.items():
             st.markdown(f"**{date}**")
-            rows = [
-                {
-                    "time": t.timeslot.strftime("%H:%M") if t.timeslot else "—",
-                    "pet_id": t.pet_id,
-                    "tasks": ", ".join(t.tasks),
-                    "completed": t.completed,
-                }
-                for t in tasks
-            ]
-            st.table(rows)
+            rows = []
+            for t in tasks:
+                status = "Done" if t.completed else "Pending"
+                conflict = schedule.check_conflicts(t.timeslot, t) if not t.completed and t.timeslot else None
+                rows.append({
+                    "Time": t.timeslot.strftime("%H:%M") if t.timeslot else "—",
+                    "Pet": pet_name_map.get(t.pet_id, f"#{t.pet_id}"),
+                    "Task(s)": ", ".join(t.tasks),
+                    "Repeat": t.frequency or "one-off",
+                    "Status": status,
+                })
+                if conflict:
+                    st.warning(conflict)
+
+            st.dataframe(rows, use_container_width=True)

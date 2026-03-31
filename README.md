@@ -12,6 +12,27 @@ A busy pet owner needs help staying consistent with pet care. They want an assis
 
 Your job is to design the system first (UML), then implement the logic in Python, then connect it to the Streamlit UI.
 
+## Features
+
+### Scheduling algorithms
+- **Chronological sorting** — `Schedule.filter_tasks()` sorts all tasks ascending by timeslot using a `datetime.max` sentinel so tasks without a timeslot always sort to the end, never crash the sort.
+- **Conflict detection** — `Schedule.check_conflicts()` distinguishes two cases before every booking: a *same-pet conflict* (the same pet already has a task at that exact timeslot) and a *cross-pet conflict* (a different pet is booked, meaning the owner may need to be in two places at once). Both surface as warning strings; neither blocks the booking.
+- **Daily recurrence** — completing a task with `frequency="daily"` auto-schedules a new copy `+1 day` at the same time via `timedelta(days=1)`. The new task gets `completed=False`, inherits the original's fields, and receives `id = max(existing ids) + 1`.
+- **Weekly recurrence** — same as daily but advances `+7 days` with `timedelta(weeks=1)`.
+- **Feeding-interval guard** — the UI enforces a minimum 4-hour gap between feeding tasks for the same pet. Any new feeding within that window surfaces a `st.warning` before the task is booked.
+- **Task filtering** — `filter_tasks()` supports three independent, composable filters: by pet name (resolved to a `pet_id` via the Owner), by completion status (`True`/`False`/`None`), or any combination of both. Passing `pet_name` without an `owner` silently skips the name filter rather than raising.
+
+### Data management
+- **Duplicate pet guard** — `Owner.add_pet()` rejects a second pet with the same name, returning `False` so the UI can show a targeted warning without crashing.
+- **Pet removal with slot cleanup** — `Owner.remove_pet()` purges the pet's tasks from both `schedule.tasks` and `schedule.slots`, removing any now-empty slot entries to prevent stale bookings.
+- **Daily flag reset** — `Owner.reset_daily_flags()` resets `walked` and `fed` to `False` on every pet, ready for a new day.
+
+### UI (Streamlit)
+- Inline conflict warnings appear next to any affected row when viewing the schedule.
+- A summary banner (`st.success`) shows total tasks, completed count, and pending count after every schedule generation.
+- The schedule view uses `st.dataframe` (sortable, full-width) grouped by date.
+- Completing a recurring task shows a confirmation and an `st.info` message with the next scheduled occurrence.
+
 ## What you will build
 
 Your final app should:
